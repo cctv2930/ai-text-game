@@ -15,13 +15,18 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # 导入你的游戏生成模块
 from agent_deepseek import generate_opening, generate_next_story
 
+# 获取当前文件所在目录（backend/）
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# 项目根目录（backend/ 的上一级）
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
 load_dotenv()
 
 app = FastAPI()
 
 # 挂载前端静态文件（注意路径：../frontend）
-app.mount("/assets", StaticFiles(directory="../frontend/assets"), name="assets")
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+app.mount("/assets", StaticFiles(directory=os.path.join(ROOT_DIR, "frontend", "assets")), name="assets")
+
 
 # 存储会话数据
 sessions: Dict[str, dict] = {}  # session_id -> {"session": GameSession, "progress": int, "status": str}
@@ -243,7 +248,7 @@ async def cancel(task_id: str):
 # 根路径返回门户页面
 @app.get("/")
 async def root():
-    return FileResponse("../frontend/index.html")
+    return FileResponse(os.path.join(ROOT_DIR, "frontend", "index.html"))
 
 @app.get("/loading.html")
 async def loading():
