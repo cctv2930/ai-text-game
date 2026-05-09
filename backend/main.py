@@ -9,6 +9,8 @@ import time
 import os
 from dotenv import load_dotenv
 import traceback   # 在文件开头导入
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 导入你的游戏生成模块
 from agent_deepseek import generate_opening, generate_next_story
