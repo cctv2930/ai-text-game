@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI文字冒险游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        /* 背景图片层（全局） */
+        .bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('/assets/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* 页面容器公用样式 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+        .hidden {
+            display: none;
+        }
+        /* 门户页面卡片 */
+        .container {
+            width: 50%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+        .sub {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 12px;
+            border: none;
+            resize: none;
+            height: 120px;
+            background: rgba(255,255,255,0.9);
+            margin-bottom: 0.5rem;
+            font-family: inherit;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            margin-bottom: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        button {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1.2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        /* 加载页面进度条 */
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background: #4caf50;
+            transition: width 0.3s;
+        }
+        /* 游戏页面样式 */
+        .game-container {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin: auto;
+        }
+        .story-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .options button {
+            background: #007bff;
+            margin: 0;
+        }
+        .options button:hover { background: #0056b3; }
+        .resources {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        audio { display: none; }
+        .back-btn {
+            background: #6c757d;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .container { width: 85%; padding: 1.5rem; }
+            .game-container { width: 95%; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+
+    <!-- 门户页面 -->
+    <div id="portalPage" class="page">
+        <div class="container">
+            <h1>AI 文字冒险游戏</h1>
+            <div class="sub">请描述你的故事，或者使用标签来快速构建游戏世界</div>
+            <textarea id="gamePrompt" rows="3" placeholder="例如：你是一个被困在神秘古堡的探险家，必须找到宝藏才能逃脱。"></textarea>
+            <select id="gameStyle">
+                <option value="fantasy">🏰 奇幻冒险</option>
+                <option value="sci-fi">🚀 科幻未来</option>
+                <option value="horror">👻 恐怖悬疑</option>
+                <option value="historical">⚔️ 历史武侠</option>
+            </select>
+            <button id="startGameBtn">开始新游戏</button>
+        </div>
+    </div>
+
+    <!-- 加载页面 -->
+    <div id="loadingPage" class="page hidden">
+        <div style="text-align: center; color: white;">
+            <h2>⏳ 正在生成游戏，请稍候...</h2>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <button id="cancelLoadingBtn" style="background: #f44336;">返回门户</button>
+        </div>
+    </div>
+
+    <!-- 游戏页面 -->
+    <div id="gamePage" class="page hidden">
+        <div class="game-container">
+            <div class="story-text" id="storyText"></div>
+            <div class="resources" id="resources"></div>
+            <div class="options" id="optionsContainer"></div>
+            <button class="back-btn" id="backToPortalBtn">返回主页</button>
+        </div>
+    </div>
+
+    <script>
+        // 页面切换函数
+        function showPage(pageId) {
+            document.getElementById('portalPage').classList.add('hidden');
+            document.getElementById('loadingPage').classList.add('hidden');
+            document.getElementById('gamePage').classList.add('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // 全局变量
+        let currentSessionId = null;
+        let pollInterval = null;
+
+        // 开始游戏
+        document.getElementById('startGameBtn').addEventListener('click', async () => {
+            const prompt = document.getElementById('gamePrompt').value;
+            if (!prompt.trim()) {
+                alert('请填写游戏设定');
+                return;
+            }
+            // 显示加载页面
+            showPage('loadingPage');
+            // 重置进度条
+            document.getElementById('progressBar').style.width = '0%';
+            // 启动后台生成任务
+            try {
+                const response = await fetch('/api/start_game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await response.json();
+                if (data.task_id) {
+                    currentSessionId = data.task_id;
+                    // 开始轮询状态
+                    if (pollInterval) clearInterval(pollInterval);
+                    pollInterval = setInterval(pollGameStatus, 500);
+                } else {
+                    alert('启动失败');
+                    showPage('portalPage');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('网络错误');
+                showPage('portalPage');
+            }
+        });
+
+        // 轮询游戏生成状态
+        async function pollGameStatus() {
+            if (!currentSessionId) return;
+            try {
+                const res = await fetch(`/api/game_status?task_id=${currentSessionId}`);
+                const data = await res.json();
+                // 更新进度条
+                document.getElementById('progressBar').style.width = data.progress + '%';
+                if (data.status === 'done') {
+                    clearInterval(pollInterval);
+                    // 获取游戏初始状态
+                    const stateRes = await fetch(`/api/game_state?session_id=${currentSessionId}`);
+                    const gameData = await stateRes.json();
+                    renderGamePage(gameData);
+                    showPage('gamePage');
+                } else if (data.status === 'error') {
+                    clearInterval(pollInterval);
+                    alert('生成失败：' + data.error);
+                    showPage('portalPage');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 渲染游戏页面
+        function renderGamePage(data) {
+            document.getElementById('storyText').innerText = data.description;
+            document.getElementById('resources').innerText = JSON.stringify(data.resources, null, 2);
+            const optionsDiv = document.getElementById('optionsContainer');
+            optionsDiv.innerHTML = '';
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.innerText = opt.text;
+                btn.onclick = () => takeAction(opt.text);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        // 执行游戏中的选项
+        async function takeAction(optionText) {
+            try {
+                const res = await fetch('/api/take_action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId, option: optionText })
+                });
+                const data = await res.json();
+                if (data.status === 'continue') {
+                    renderGamePage(data);
+                } else if (data.status === 'end') {
+                    alert('游戏结束！');
+                    backToPortal();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('操作失败');
+            }
+        }
+
+        // 返回门户（取消加载或游戏结束时）
+        function backToPortal() {
+            if (pollInterval) clearInterval(pollInterval);
+            currentSessionId = null;
+            showPage('portalPage');
+        }
+
+        document.getElementById('cancelLoadingBtn').addEventListener('click', backToPortal);
+        document.getElementById('backToPortalBtn').addEventListener('click', backToPortal);
+    </script>
+</body>
+</html>

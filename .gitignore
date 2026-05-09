@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Environment variables
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Audio cache
+audio_cache/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Frontend assets (optional: if you want to commit images, remove these lines)
+frontend/assets/audio/*.mp3   # 音频文件较大，建议不提交到 Git
+frontend/assets/UI_label/*.png

@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25小时幻想空间 | 文字冒险游戏</title>
+    <style>
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        /* 所有页面容器公用 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            transition: opacity 0.3s ease;
+        }
+        .hidden {
+            display: none !important; 
+        }
+        /* ========== 页面1：yl.html ========== */
+        .page-yl {
+            background: linear-gradient(180deg, #3b2f75 0%, #6c53a8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .yl-bg-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22vw;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 20px;
+            z-index: 1;
+            text-shadow: 0 0 10px #fff, 0 0 30px #00aaff, 0 0 50px #0088ff;
+            animation: glowStrong 3s infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes glowStrong {
+            0% { text-shadow: 0 0 10px #fff, 0 0 30px #00aaff, 0 0 50px #0088ff; }
+            100% { text-shadow: 0 0 20px #fff, 0 0 40px #00aaff, 0 0 60px #0088ff, 0 0 80px #0066ff; }
+        }
+        .yl-ghost {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            cursor: pointer;
+            z-index: 2;
+            filter: drop-shadow(0 0 25px rgba(232, 193, 122, 0.8));
+            animation: ghostFloat 3s ease-in-out infinite;
+        }
+        @keyframes ghostFloat {
+            0%,100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+        .yl-ghost:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+        .yl-footer {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+            z-index: 3;
+            text-shadow: 0 1px 10px rgba(0,0,0,0.5);
+        }
+        .yl-footer::after {
+            content: "";
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: #E8C17A;
+            margin: 12px auto 0;
+        }
+        /* ========== 页面2：yler.html ========== */
+        .page-yler {
+            background: linear-gradient(180deg, #1a103f 0%, #3b2f75 50%, #6c53a8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .yler-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            animation: twinkle 10s infinite linear;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        .yler-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            width: 90%;
+            max-width: 700px;
+        }
+        .yler-ghost-box {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .yler-ghost {
+            width: 300px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(255,230,180,0.8));
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        .yler-bubble {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 14px 24px;
+            border-radius: 25px;
+            font-size: 17px;
+            color: #4a3a7a;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 0 15px rgba(150, 123, 255, 0.4);
+            display: none;
+            animation: bubbleShow 0.6s ease forwards;
+        }
+        .yler-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 10px solid rgba(255, 255, 255, 0.95);
+        }
+        @keyframes bubbleShow {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+        .yler-title {
+            color: #fff;
+            font-size: 26px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #8f88ff;
+        }
+        .yler-input {
+            width: 100%;
+            height: 70px;
+            padding: 0 25px;
+            border-radius: 50px;
+            border: 2px solid rgba(173, 153, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            font-size: 18px;
+            color: white;
+            outline: none;
+            text-align: center;
+        }
+        .yler-select-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        .yler-select {
+            width: 180px;
+            height: 45px;
+            padding: 0 15px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(144, 123, 255, 0.2);
+            color: #e6e0ff;
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+        }
+        .yler-select option{
+            color:#674fa3;
+        }
+        .yler-btn {
+            padding: 16px 50px;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #7c6aff, #a89bff);
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        /* ========== 页面3：jiazat.html（加载页）========== */
+        .page-jiazat {
+            background: linear-gradient(180deg, #3b2f75 0%, #6c53a8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .jiazat-container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        .jiazat-ghost {
+            width: 180px;
+            margin-bottom: 30px;
+            animation: float 1.5s ease-in-out infinite;
+        }
+        .jiazat-title {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .jiazat-prompt {
+            color: #ddd;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .jiazat-progress-container {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+            overflow: visible;
+        }
+        .jiazat-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #7c6aff, #a89bff);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        .jiazat-mini-ghost {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            pointer-events: none;
+            animation: bounce 1.2s infinite alternate;
+        }
+        @keyframes bounce {
+            0% { transform: translate(-50%, -50%) translateY(0); }
+            100% { transform: translate(-50%, -50%) translateY(-3px); }
+        }
+        .jiazat-progress-text {
+            margin-top: 20px;
+            color: #fff;
+            font-size: 18px;
+        }
+        /* ========== 页面4：游戏页（文字冒险）========== */
+        .page-game {
+            background-image: url('/assets/背景图.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-game::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 0;
+        }
+        .game-container {
+            position: relative;
+            z-index: 1;
+            width: 80%;
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(0,0,0,0.7);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+        }
+        .story-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .stats-area {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .stats-text {
+            font-size: 1rem;
+            background: #2c2c2c;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        .inventory-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .inventory-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0,0,0,0.6);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        .inventory-item img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+        .options {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .options button {
+            flex: 0 1 auto;
+            min-width: 120px;
+            padding: 10px 20px;
+            background: #007bff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .options button:hover {
+            background: #0056b3;
+        }
+        .back-btn {
+            background: #6c757d;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- 页面1：yl -->
+<div id="page1" class="page page-yl">
+    <div class="yl-bg-text">DZXQH</div>
+    <img class="yl-ghost" src="/assets/小怪物.png" alt="幽灵" id="ghostClick">
+    <div class="yl-footer">欢迎来到25小时幻想空间</div>
+</div>
+
+<!-- 页面2：yler -->
+<div id="page2" class="page page-yler hidden">
+    <div class="yler-stars"></div>
+    <div class="yler-container">
+        <div class="yler-ghost-box">
+            <img class="yler-ghost" src="/assets/幽灵2jpsd.png" alt="幽灵">
+            <div class="yler-bubble" id="bubble2">哈喽，我是25小时幻想空间的小助手——饼饼</div>
+        </div>
+        <h2 class="yler-title">DZXQH · 25小时幻想空间</h2>
+        <input type="text" class="yler-input" id="gamePromptInput" placeholder="向幻想空间提问，开启你的奇妙旅程...">
+        <div class="yler-select-group">
+            <select class="yler-select" id="select1">
+                <option value=""disabled selected>主题类型</option>
+                <option value="星空故事">星空故事</option>
+                <option value="幽灵奇遇">幽灵奇遇</option>
+                <option value="治愈梦境">治愈梦境</option>
+                <option value="机械遗迹">机械遗迹</option>
+			    <option value="时间回溯">时间回溯</option>
+			    <option value="末日废土">末日废土</option>
+			    <option value="深海迷航">深海迷航</option>
+			    <option value="魔法学院">魔法学院</option>
+			    <option value="神话重构">神话重构</option>
+			    <option value="暗黑童话">暗黑童话</option>
+			    <option value="都市怪谈">都市怪谈</option>
+			    <option value="文明演化">文明演化</option>
+			    <option value="镜中世界">镜中世界</option>
+            </select>
+            <select class="yler-select" id="select2">
+                <option value=""disabled selected>风格选择</option>
+                <option value="温馨治愈">温馨治愈</option>
+                <option value="奇幻冒险">奇幻冒险</option>
+                <option value="浪漫梦幻">浪漫梦幻</option>
+                <option value="赛博朋克">赛博朋克</option>
+			    <option value="水墨国风">水墨国风</option>
+			    <option value="暗黑哥特">暗黑哥特</option>
+			    <option value="极简几何">极简几何</option>
+                <option value="蒸汽朋克">蒸汽朋克</option>
+                <option value="北欧极简">北欧极简</option>
+                <option value="玻璃彩绘">玻璃彩绘</option>
+                <option value="粘土定格">粘土定格</option>
+                <option value="拼贴报纸">拼贴报纸</option>
+                <option value="像素水墨">像素水墨</option>
+            </select>
+            <select class="yler-select" id="select3">
+                <option value=""disabled selected>模式选择</option>
+                <option value="冒险">冒险</option>
+                <option value="解谜">解谜</option>
+                <option value="推理">推理</option>
+                <option value="叙事">叙事</option>
+                <option value="恐怖">恐怖</option>
+                <option value="末世生存">末世生存</option>
+                <option value="角色扮演">角色扮演</option>
+                <option value="策略">策略</option>
+                <option value="模拟经营">模拟经营</option>
+            </select>
+        </div>
+        <button class="yler-btn" id="goToLoadBtn">开始生成</button>
+    </div>
+</div>
+
+<!-- 页面3：jiazat（加载页） -->
+<div id="page3" class="page page-jiazat hidden">
+    <div class="jiazat-container">
+        <img class="jiazat-ghost" src="/assets/幽灵3.png" alt="幽灵">
+        <h2 class="jiazat-title">正在为你生成幻想世界...</h2>
+        <p class="jiazat-prompt" id="promptDisplay"></p>
+        <div class="jiazat-progress-container">
+            <div class="jiazat-progress-bar" id="progressBar"></div>
+            <img class="jiazat-mini-ghost" id="miniGhost" src="/assets/幽灵4.png" alt="小幽灵">
+        </div>
+        <div class="jiazat-progress-text" id="progressText">0%</div>
+    </div>
+</div>
+
+<!-- 页面4：游戏页（文字冒险） -->
+<div id="page4" class="page page-game hidden">
+    <div class="game-container">
+        <div class="story-text" id="storyText"></div>
+        <div class="stats-area">
+            <div class="stats-text" id="statsDisplay"></div>
+            <div class="inventory-area" id="inventoryContainer"></div>
+        </div>
+        <div class="options" id="optionsContainer"></div>
+        <button class="back-btn" id="backToPortalBtn">返回首页</button>
+    </div>
+</div>
+
+<audio id="bgm" loop style="display: none;"></audio>
+
+<script>
+    // ========== 页面切换逻辑 ==========
+    function showPage(pageId) {
+        console.log(pageId)
+        document.getElementById('page1').classList.add('hidden');
+        document.getElementById('page2').classList.add('hidden');
+        document.getElementById('page3').classList.add('hidden');
+        document.getElementById('page4').classList.add('hidden');
+        document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    // 页面1 -> 页面2
+    const ghostClick = document.getElementById('ghostClick');
+	
+    if (ghostClick) {
+        ghostClick.addEventListener('click', function() {
+            console.log('幽灵被点击，切换到页面2');
+            showPage('page2');
+        });
+    } else {
+        console.error('未找到幽灵元素 #ghostClick');
+    }
+
+    // 页面2 -> 页面3（加载页）
+    const goBtn = document.getElementById('goToLoadBtn');
+    const promptInput = document.getElementById('gamePromptInput');
+    const select1 = document.getElementById('select1');
+    const select2 = document.getElementById('select2');
+    const select3 = document.getElementById('select3');
+
+    function updateInputFromSelects() {
+        let parts = [];
+        
+        //promptInput.value = parts.join(' ');
+        const currentText = promptInput.value.trim();
+        // 获取当前所有选中的非空值
+        const selectedValues = [select1.value, select2.value, select3.value].filter(v => v);
+        // 将当前文本按空白字符分割为单词数组
+        let words = currentText ? currentText.split(/\s+/) : [];
+        let changed = false;
+        // 对于每个选中的值，如果不在当前单词列表中，则追加
+        for (let val of selectedValues) {
+            if (!words.includes(val)) {
+                words.push(val);
+                changed = true;
+            }
+        }
+        if (changed)
+        {
+            promptInput.value = words.join(' ');
+        }
+        /*const newText = words.join(' ');
+        // 仅当文本发生变化时才更新，避免光标跳动
+        if (newText !== currentText) {
+            promptInput.value = newText;
+        }*/
+        if (select1.value) parts.push(select1.value);
+        if (select2.value) parts.push(select2.value);
+        if (select3.value) parts.push(select3.value);
+    }
+    select1.addEventListener('change', updateInputFromSelects);
+    select2.addEventListener('change', updateInputFromSelects);
+    select3.addEventListener('change', updateInputFromSelects);
+
+    goBtn.addEventListener('click', () => {
+        let prompt = promptInput.value.trim();
+        if (!prompt) {
+            alert('请填写或选择游戏设定');
+            return;
+        }
+        // 保存到 localStorage 供后续使用
+        localStorage.setItem('gamePrompt', prompt);
+        // 显示加载页，并启动生成任务
+        showPage('page3');
+        // 设置加载页显示内容
+        document.getElementById('promptDisplay').innerText = `生成内容：${prompt}`;
+        // 启动游戏生成任务（调用后端API）
+        startGameTask(prompt);
+    });
+
+    // 页面3 的进度条和游戏生成逻辑
+    let currentSessionId = null;
+    let pollInterval = null;
+    const progressBar = document.getElementById('progressBar');
+    const miniGhost = document.getElementById('miniGhost');
+    const progressTextSpan = document.getElementById('progressText');
+
+    async function startGameTask(prompt) {
+        try {
+            const response = await fetch('/api/start_game', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+                cache: 'no-store'
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            if (data.task_id) {
+                currentSessionId = data.task_id;
+                if (pollInterval) clearInterval(pollInterval);
+                pollInterval = setInterval(pollGameStatus, 500);
+            } else {
+                throw new Error('返回数据缺少 task_id');
+            }
+        } catch (err) {
+            console.error('启动游戏失败:',err);
+            alert('网络错误，请重试' + err.message);
+            showPage('page2');
+        }
+    }
+    // 在 game page 显示时播放随机背景音乐
+    function playRandomBGM() {
+            const audio = document.getElementById('bgm');
+            if (!audio) return;
+            // 背景音乐文件名列表（请根据实际文件名修改）
+            const bgmList = [
+                'bg1.mp3',
+                'bg2.mp3',
+                'bg3.mp3',
+                'bg4.mp3',
+                'bg5.mp3',
+                'bg6.mp3',
+                'bg7.mp3'
+            ];
+            const randomIndex = Math.floor(Math.random() * bgmList.length);
+            const bgmPath = `/assets/audio/${bgmList[randomIndex]}`;
+            audio.src = bgmPath;
+            audio.load();
+            // 尝试播放（浏览器可能因自动播放策略阻止，但用户已通过点击按钮交互）
+            audio.play().catch(e => console.log('背景音乐自动播放被阻止，请点击页面任意位置'));
+        }
+    async function pollGameStatus() {
+        if (!currentSessionId) return;
+        try {
+            const res = await fetch(`/api/game_status?task_id=${currentSessionId}`, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            // 克隆响应，避免多次读取
+            const clonedRes = res.clone();
+            let data;
+            try {
+                data = await clonedRes.json();
+            } catch (jsonErr) {
+                // 如果 JSON 解析失败，可能是后端返回了其他格式，尝试读取文本
+                const text = await res.text();
+                console.error('后端返回非 JSON:', text);
+                throw new Error(`后端返回错误: ${text.substring(0, 100)}`);
+            }
+            console.log('游戏状态:', data); 
+            const percent = data.progress;
+            progressBar.style.width = percent + '%';
+            miniGhost.style.left = percent + '%';
+            progressTextSpan.innerText = Math.floor(percent) + '%';
+            if (data.status === 'done') {
+                clearInterval(pollInterval);
+                // 获取游戏初始状态
+                try {
+                    const stateRes = await fetch(`/api/game_state?session_id=${currentSessionId}`, { cache: 'no-store' });
+                    if (!stateRes.ok) throw new Error(`HTTP ${stateRes.status}`);
+                    const gameData = await stateRes.json();
+                    console.log('游戏数据:', gameData);
+                    showPage('page4');
+                    playRandomBGM();  
+                    renderGamePage(gameData);
+                    
+                } catch (err) {
+                    console.error('获取游戏数据失败:', err);
+                    alert('游戏数据加载失败：' + (err.message || '未知错误'));
+                    showPage('page2');
+                }
+            } else if (data.status === 'error') {
+                clearInterval(pollInterval);
+                // console.error('获取游戏数据失败:', err);
+                alert('生成失败：' + data.error);
+                showPage('page2');
+            } else {
+            console.log('状态未完成，当前进度:', data.progress);
+            }
+        } catch (err) {
+            // console.error('轮询出错:', err);
+            clearInterval(pollInterval);
+            alert('轮询状态失败：' + (err.message || '未知错误'));
+            showPage('page2');
+        }
+    }
+
+    // ========== 游戏页面渲染 ==========
+    function renderGamePage(data) {
+    try {
+        console.log('渲染游戏页面，数据：', data);
+        const description = data.description || '（无剧情）';
+        const stats = data.stats || data.resources || {};
+        const inventory = Array.isArray(data.inventory) ? data.inventory : [];
+        const options = Array.isArray(data.options) ? data.options : [];
+
+        const storyEl = document.getElementById('storyText');
+        const statsDisplay = document.getElementById('statsDisplay');
+        const inventoryContainer = document.getElementById('inventoryContainer');
+        const optionsContainer = document.getElementById('optionsContainer');
+
+        if (!storyEl) throw new Error('缺少 storyText 元素');
+        if (!statsDisplay) throw new Error('缺少 statsDisplay 元素');
+        if (!inventoryContainer) throw new Error('缺少 inventoryContainer 元素');
+        if (!optionsContainer) throw new Error('缺少 optionsContainer 元素');
+
+        storyEl.innerText = description;
+
+        // 安全地遍历 stats 对象
+        const statsEntries = Object.entries(stats);
+        let statsHtml = '无属性';
+        if (statsEntries.length) {
+            try {
+                statsHtml = statsEntries.map(([k, v]) => {
+                    // 确保值是基本类型，如果不是则转为 JSON 字符串
+                    const valueStr = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+                    return `${k}: ${valueStr}`;
+                }).join(' | ');
+            } catch (err) {
+                console.error('stats 处理出错:', err);
+                statsHtml = '属性解析错误';
+            }
+        }
+        statsDisplay.innerHTML = statsHtml;
+
+        // 清空并重新渲染 inventory
+        inventoryContainer.innerHTML = '';
+        inventory.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'inventory-item';
+            const img = document.createElement('img');
+            img.src = `/assets/UI_label/${item.icon || 'default.png'}`;
+            img.alt = item.name || '物品';
+            const span = document.createElement('span');
+            span.innerText = item.name || '未知物品';
+            div.appendChild(img);
+            div.appendChild(span);
+            inventoryContainer.appendChild(div);
+        });
+
+        // 渲染选项
+        optionsContainer.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text || '继续';
+            if (opt.effect) {
+                const small = document.createElement('small');
+                small.innerText = opt.effect;
+                small.style.display = 'block';
+                small.style.fontSize = '0.8rem';
+                small.style.opacity = '0.8';
+                btn.appendChild(small);
+            }
+            btn.onclick = () => takeAction(opt.text, opt.effect);
+            optionsContainer.appendChild(btn);
+        });
+        console.log('渲染完成');
+    } catch (err) {
+        console.error('renderGamePage 内部错误:', err);
+        alert('游戏页面渲染失败：' + (err.message || '未知错误'));
+        backToPortal();
+    }
+}
+    
+
+    async function takeAction(optionText,effect) {
+        try {
+            const res = await fetch('/api/take_action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: currentSessionId, option: optionText, effect: effect || '' })
+            });
+            const data = await res.json();
+            if (data.status === 'continue') {
+                renderGamePage(data);
+            } else if (data.status === 'end') {
+                alert('游戏结束！');
+                backToPortal();
+            }
+        } catch (err) {
+            console.error(err);
+            alert('操作失败');
+        }
+    }
+
+    function backToPortal() {
+        if (pollInterval) clearInterval(pollInterval);
+        currentSessionId = null;
+        const audio = document.getElementById('bgm');
+        if (audio) {
+            audio.pause();
+            audio.src = '';
+        }
+        showPage('page1');
+    }
+
+    // 游戏页面中的返回首页按钮
+    document.getElementById('backToPortalBtn').addEventListener('click', backToPortal);
+
+    // 页面2 的幽灵对话框（延迟显示）
+    setTimeout(() => {
+        const bubble = document.getElementById('bubble2');
+        if (bubble) bubble.style.display = 'block';
+    }, 1000);
+
+    // 如果 localStorage 中有之前未完成的会话，清理（可选）
+    window.addEventListener('beforeunload', () => {
+        if (pollInterval) clearInterval(pollInterval);
+    });
+</script>
+
+</body>
+</html>
