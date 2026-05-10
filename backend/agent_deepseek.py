@@ -12,11 +12,18 @@ client = OpenAI(
 )
 
 def get_available_icons():
-    icons_dir = "../frontend/assets/UI_label"
+    # 获取当前文件所在目录（backend/）
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # 项目根目录（backend/ 的上一级）
+    root_dir = os.path.dirname(current_dir)
+    # UI_label 目录的绝对路径
+    icons_dir = os.path.join(root_dir, "frontend", "assets", "UI_label")
     if os.path.exists(icons_dir):
         files = [f for f in os.listdir(icons_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.svg'))]
         return files if files else ["default.png"]
-    return ["default.png"]
+    else:
+        print(f"警告: UI_label 目录不存在: {icons_dir}")
+        return ["default.png"]
 
 def extract_json(text: str) -> str:
     """从文本中提取第一个完整的 JSON 对象"""
